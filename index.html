@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#11131a" />
+    <meta name="description" content="BugFlow issue tracking, collaboration, sprint planning, and quality analytics." />
+    <title>BugFlow · Issue tracker</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="auth.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar" id="sidebar">
+        <a class="brand" href="#dashboard" aria-label="BugFlow dashboard">
+          <span class="brand-mark">🐛</span><span><strong>BugFlow</strong><small>INTELLIGENT DEFECT TRACKER</small></span>
+        </a>
+        <nav class="side-nav" aria-label="Main navigation">
+          <div class="nav-label">CORE SYSTEM</div>
+          <button class="nav-item active" data-page="dashboard"><span>▥</span> Dashboard</button>
+          <button class="nav-item" data-page="issues"><span>🐞</span> Issues <b class="nav-count" id="issue-count">0</b></button>
+          <button class="nav-item" data-action="new-issue"><span>＋</span> New issue</button>
+          <button class="nav-item" data-page="board"><span>🏃</span> Sprint board</button>
+          <button class="nav-item" data-page="backlog"><span>▤</span> Backlog</button>
+          <div class="nav-label nav-label-accent">WORKFLOW &amp; QUALITY</div>
+          <button class="nav-item" data-page="sprints"><span>ϟ</span> Workflow &amp; Quality</button>
+          <div class="nav-label">ANALYTICS &amp; TOOLS</div>
+          <button class="nav-item" data-page="releases"><span>🚀</span> Releases</button>
+          <button class="nav-item" data-page="analytics"><span>📈</span> Analytics</button>
+          <button class="nav-item" data-page="reports"><span>▧</span> Reports</button>
+          <button class="nav-item" data-page="integrations"><span>🔌</span> REST APIs &amp; CI/CD</button>
+          <button class="nav-item" data-page="team"><span>👥</span> Team</button>
+        </nav>
+        <div class="profile-block">
+          <div class="avatar avatar-purple" id="user-avatar">GK</div>
+          <div class="profile-copy"><strong id="user-name">Gaurav Kalyan</strong><small id="user-role">Lead Architect / Admin</small></div>
+          <button class="icon-button profile-switch" id="switch-user" title="Switch demo user" aria-label="Switch demo user">⇄</button>
+        </div>
+      </aside>
+
+      <main class="main-area">
+        <header class="topbar">
+          <button class="icon-button menu-toggle" id="menu-toggle" aria-label="Toggle navigation">☰</button>
+          <h1 id="page-title">Dashboard</h1>
+          <div class="topbar-actions">
+            <label class="search-box"><span>🔍</span><input id="global-search" type="search" placeholder="Search… (press /)" autocomplete="off" /></label>
+            <button class="icon-button theme-button" id="theme-toggle" title="Toggle theme" aria-label="Toggle theme">☀️</button>
+            <button class="icon-button" id="notifications" title="Recent activity" aria-label="Recent activity">🔔</button>
+            <button class="top-pill" data-page="sprints">ϟ &nbsp;Workflow &amp; Quality</button>
+            <button class="top-pill top-pill-muted" data-page="board">✨ &nbsp;Defect Journey</button>
+            <button class="primary-button" data-action="new-issue">＋ New issue</button>
+          </div>
+        </header>
+        <section id="view" class="view" aria-live="polite"></section>
+      </main>
+    </div>
+    <div id="modal-root"></div>
+    <div id="toast-region" class="toast-region" aria-live="polite" aria-atomic="true"></div>
+    <script src="app.js"></script>
+  </body>
+</html>

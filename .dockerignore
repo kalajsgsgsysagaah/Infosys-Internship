@@ -1,0 +1,5 @@
+bugflow.sqlite3
+bugflow.sqlite3-shm
+bugflow.sqlite3-wal
+__pycache__/
+.git/
