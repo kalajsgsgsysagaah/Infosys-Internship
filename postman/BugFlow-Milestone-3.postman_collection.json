@@ -1,0 +1,145 @@
+{
+  "info": {
+    "_postman_id": "8b6010a2-49f6-4d6a-93cb-3f0b6f9e72d8",
+    "name": "BugFlow Milestone 3 API checks",
+    "description": "Login, issue CRUD, sprint assignment, lifecycle transitions, analytics, and project reports for the local BugFlow server.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }]
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8080" },
+    { "key": "username", "value": "gaurav" },
+    { "key": "password", "value": "admin123" },
+    { "key": "token", "value": "" },
+    { "key": "issueId", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "1. Sign in",
+      "request": {
+        "method": "POST",
+        "auth": { "type": "noauth" },
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\n  \"username\": \"{{username}}\",\n  \"password\": \"{{password}}\"\n}", "options": { "raw": { "language": "json" } } },
+        "url": "{{baseUrl}}/api/login"
+      },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('Login succeeds', () => pm.response.to.have.status(200));",
+        "const result = pm.response.json();",
+        "pm.test('Bearer token is returned', () => pm.expect(result.token).to.be.a('string').and.not.empty);",
+        "if (result.token) pm.collectionVariables.set('token', result.token);"
+      ] } }]
+    },
+    {
+      "name": "2. List issues",
+      "request": { "method": "GET", "url": "{{baseUrl}}/api/issues" },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('Issue list succeeds', () => pm.response.to.have.status(200));",
+        "const result = pm.response.json();",
+        "pm.test('Issue array and count are returned', () => { pm.expect(result.issues).to.be.an('array'); pm.expect(result.count).to.eql(result.issues.length); });"
+      ] } }]
+    },
+    {
+      "name": "3. Create issue",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\n  \"title\": \"Milestone 3 API check {{$timestamp}}\",\n  \"description\": \"Issue created by the BugFlow Postman collection.\",\n  \"type\": \"Bug\",\n  \"severity\": \"Low\",\n  \"priority\": \"P4\",\n  \"module\": \"API\"\n}", "options": { "raw": { "language": "json" } } },
+        "url": "{{baseUrl}}/api/issues"
+      },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('Issue is created', () => pm.response.to.have.status(201));",
+        "const result = pm.response.json();",
+        "pm.test('Created issue has an id and Open status', () => { pm.expect(result.issue.id).to.match(/^BF-\\d+$/); pm.expect(result.issue.status).to.eql('Open'); });",
+        "if (result.issue && result.issue.id) pm.collectionVariables.set('issueId', result.issue.id);"
+      ] } }]
+    },
+    {
+      "name": "4. Assign issue to first sprint",
+      "request": {
+        "method": "PUT",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\n  \"issueIds\": [\"{{issueId}}\"]\n}", "options": { "raw": { "language": "json" } } },
+        "url": "{{baseUrl}}/api/sprints/SP1/issues"
+      },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('Issue assignment succeeds', () => pm.response.to.have.status(200));",
+        "pm.test('Created issue is assigned', () => pm.expect(pm.response.json().assigned).to.include(pm.collectionVariables.get('issueId')));"
+      ] } }]
+    },
+    {
+      "name": "5. Read created issue",
+      "request": { "method": "GET", "url": "{{baseUrl}}/api/issues/{{issueId}}" },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('Issue lookup succeeds', () => pm.response.to.have.status(200));",
+        "pm.test('Issue id matches the created record', () => pm.expect(pm.response.json().issue.id).to.eql(pm.collectionVariables.get('issueId')));"
+      ] } }]
+    },
+    {
+      "name": "6. Update issue",
+      "request": {
+        "method": "PUT",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\n  \"title\": \"Updated Milestone 3 API check\",\n  \"description\": \"Updated by the BugFlow Postman collection.\"\n}", "options": { "raw": { "language": "json" } } },
+        "url": "{{baseUrl}}/api/issues/{{issueId}}"
+      },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('Issue update succeeds', () => pm.response.to.have.status(200));",
+        "pm.test('Updated title is returned', () => pm.expect(pm.response.json().issue.title).to.eql('Updated Milestone 3 API check'));"
+      ] } }]
+    },
+    {
+      "name": "7. Move issue to In Progress",
+      "request": {
+        "method": "PATCH",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\n  \"status\": \"In Progress\"\n}", "options": { "raw": { "language": "json" } } },
+        "url": "{{baseUrl}}/api/issues/{{issueId}}/status"
+      },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('Valid status transition succeeds', () => pm.response.to.have.status(200));",
+        "pm.test('Issue status changes', () => pm.expect(pm.response.json().issue.status).to.eql('In Progress'));"
+      ] } }]
+    },
+    {
+      "name": "8. Reject invalid status transition",
+      "request": {
+        "method": "PATCH",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\n  \"status\": \"Closed\"\n}", "options": { "raw": { "language": "json" } } },
+        "url": "{{baseUrl}}/api/issues/{{issueId}}/status"
+      },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('Invalid transition is rejected', () => pm.response.to.have.status(422));",
+        "pm.test('An explanatory error is returned', () => pm.expect(pm.response.json().error).to.be.a('string').and.not.empty);"
+      ] } }]
+    },
+    {
+      "name": "9. Quality analytics",
+      "request": { "method": "GET", "url": "{{baseUrl}}/api/analytics/quality" },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('Quality analytics succeeds', () => pm.response.to.have.status(200));",
+        "pm.test('Status, severity and module metrics are returned', () => { const r = pm.response.json(); pm.expect(r.byStatus).to.be.an('object'); pm.expect(r.bySeverity).to.be.an('object'); pm.expect(r.byModule).to.be.an('object'); });"
+      ] } }]
+    },
+    {
+      "name": "10. Project report by module",
+      "request": { "method": "GET", "url": "{{baseUrl}}/api/reports/project?module=API" },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('Project report succeeds', () => pm.response.to.have.status(200));",
+        "pm.test('Module filter is applied', () => pm.expect(pm.response.json().module).to.eql('API'));"
+      ] } }]
+    },
+    {
+      "name": "11. Delete created issue",
+      "request": { "method": "DELETE", "url": "{{baseUrl}}/api/issues/{{issueId}}" },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('Issue deletion succeeds', () => pm.response.to.have.status(200));",
+        "pm.test('Deleted id is returned', () => pm.expect(pm.response.json().deleted).to.eql(pm.collectionVariables.get('issueId')));"
+      ] } }]
+    }
+  ]
+}
